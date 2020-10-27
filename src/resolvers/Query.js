@@ -1,13 +1,46 @@
-import {comments, posts, users} from "../db";
-
 export default {
-    users(parentValues, {query = ''}) {
-        return users.filter(({name}) => name.toLowerCase().includes(query.toLowerCase()));
+    users(parentValues, {query}, {prisma}, info) {
+        const operationArgs = {};
+
+        if (query)
+            operationArgs.where = {
+                OR: [
+                    {
+                        name_contains: query
+                    },
+                    {
+                        email_contains: query
+                    }
+                ]
+            };
+
+        return prisma.query.users(operationArgs, info);
     },
-    posts(parentValues, {query = ''}) {
-        return posts.filter(({title, body}) => `${title}${body}`.toLowerCase().includes(query.toLowerCase()));
+    posts(parentValues, {query}, {prisma}, info) {
+        const operationArgs = {};
+
+        if (query)
+            operationArgs.where = {
+                OR: [
+                    {
+                        title_contains: query
+                    },
+                    {
+                        body_contains: query
+                    }
+                ]
+            };
+
+        return prisma.query.posts(operationArgs, info);
     },
-    comments(parentValues, {query = ''}) {
-        return comments.filter(({text}) => text.toLowerCase().includes(query.toLowerCase()));
+    comments(parentValues, {query}, {prisma}, info) {
+        const operationArgs = {};
+
+        if (query)
+            operationArgs.where = {
+                text_contains: query
+            };
+
+        return prisma.query.comments(null, info);
     }
 };

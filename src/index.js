@@ -6,6 +6,7 @@ import Subscription from "./resolvers/Subscription";
 import User from "./resolvers/User";
 import Post from "./resolvers/Post";
 import Comment from "./resolvers/Comment";
+import prisma from "./prisma";
 
 Array.prototype.removeIf = function (callback) {
     let i = 0;
@@ -33,7 +34,8 @@ const server = new GraphQLServer({
     typeDefs: './src/schema.graphql',
     resolvers,
     context: {
-        pubsub
+        pubsub,
+        prisma
     }
 });
 
