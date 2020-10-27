@@ -41,6 +41,6 @@ export default {
                 text_contains: query
             };
 
-        return prisma.query.comments(null, info);
+        return prisma.query.comments(operationArgs, info);
     }
 };
