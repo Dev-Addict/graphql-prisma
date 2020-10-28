@@ -7,7 +7,8 @@ type Query {
 }
 
 type Mutation {
-    createUser(data: CreateUserInput!): User!
+    createUser(data: CreateUserInput!): AuthPayload!
+    signIn(data: SignInUserInput!): AuthPayload!
     deleteUser(id: ID!): User!
     updateUser(id: ID!, data: UpdateUserInput!): User!
     createPost(data: CreatePostInput!): Post!
@@ -29,6 +30,11 @@ input CreateUserInput {
     password: String!
 }
 
+input SignInUserInput {
+    email: String!
+    password: String!
+}
+
 input UpdateUserInput {
     name: String
     email: String
@@ -38,7 +44,6 @@ input CreatePostInput {
     title: String!
     body: String!
     published: Boolean!
-    author: ID!
 }
 
 input UpdatePostInput {
@@ -86,6 +91,11 @@ enum MutationType {
     CREATED
     UPDATED
     DELETED
+}
+
+type AuthPayload {
+    token: String!
+    user: User!
 }
 
 type PostSubscriptionPayload {
