@@ -1,5 +1,6 @@
 endpoint: http://localhost:4466
 datamodel: datamodel.prisma
+secret: superSecretTask1234
 generate:
   - generator: graphql-schema
     output: ../src/generated/schema.graphql

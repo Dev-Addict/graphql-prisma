@@ -1,7 +1,12 @@
 export default {
-    comments: {
-        subscribe(parentValues, args, {pubsub}) {
-            return pubsub.asyncIterator('COMMENTS');
+    comment: {
+        subscribe(parentValues, {postId}, {prisma: {subscription}}, info) {
+            return subscription.comment({where: {node: {post: {id: postId}}}}, info);
+        }
+    },
+    post: {
+        subscribe(parentValues, args, {prisma: {subscription}}, info) {
+            return subscription.post({where: {node: {published: true}}}, info);
         }
     }
 };
