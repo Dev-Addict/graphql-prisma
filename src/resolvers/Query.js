@@ -18,17 +18,49 @@ export default {
 
         return prisma.query.users(operationArgs, info);
     },
-    posts(parentValues, {query}, {prisma}, info) {
+    posts(parentValues, {query}, {prisma, request}, info) {
+        const user = protect(request, prisma.query, false);
         const operationArgs = {};
 
         if (query)
+            operationArgs.where.OR = [
+                {
+                    title_contains: query,
+                    OR: [
+                        {
+                            published: true
+                        },
+                        {
+                            author: {
+                                id: user.id
+                            }
+                        }
+                    ]
+                },
+                {
+                    body_contains: query,
+                    OR: [
+                        {
+                            published: true
+                        },
+                        {
+                            author: {
+                                id: user.id
+                            }
+                        }
+                    ]
+                }
+            ];
+        else
             operationArgs.where = {
                 OR: [
                     {
-                        title_contains: query
+                        published: true
                     },
                     {
-                        body_contains: query
+                        author: {
+                            id: user.id
+                        }
                     }
                 ]
             };
