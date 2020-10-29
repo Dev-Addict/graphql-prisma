@@ -18,7 +18,7 @@ export default {
             token
         };
     },
-    async signIn(parentValues, {data: {email, password}}, {prisma: {mutation, query}}, info) {
+    async signIn(parentValues, {data: {email, password}}, {prisma: {query}}) {
         const user = await query.user({where: {email: email}});
 
         if (!user) throw new Error("Invalid email or password");
@@ -34,10 +34,14 @@ export default {
             token
         };
     },
-    async deleteUser(parentValues, {id}, {prisma: {mutation, exists}}, info) {
+    async deleteUser(parentValues, args, {prisma: {mutation, query}, request}, info) {
+        const {id} = await protect(request, query);
+
         return mutation.deleteUser({where: {id}}, info);
     },
-    async updateUser(parentValues, {id, data}, {prisma: {mutation, exists}}, info) {
+    async updateUser(parentValues, {data}, {prisma: {mutation, query}, request}, info) {
+        const {id} = await protect(request, query);
+
         return mutation.updateUser({where: {id}, data}, info);
     },
     async createPost(parentValues, {data: {title, body, published}}, {prisma: {mutation, query}, request}, info) {
@@ -45,19 +49,41 @@ export default {
 
         return mutation.createPost({data: {title, body, published, author: {connect: {id}}}}, info);
     },
-    deletePost(parentValues, {id}, {prisma: {mutation}}, info) {
+    async deletePost(parentValues, {id}, {prisma: {mutation, query, exists}, request}, info) {
+        const {id: userId} = await protect(request, query);
+        const isUsers = exists.Post({id, author: {id: userId}});
+
+        if (!isUsers) throw new Error('this is not your post.');
+
         return mutation.deletePost({where: {id}}, info);
     },
-    updatePost(parentValues, {id, data}, {prisma: {mutation}}, info) {
+    async updatePost(parentValues, {id, data}, {prisma: {mutation, query, exists}, request}, info) {
+        const {id: userId} = await protect(request, query);
+        const isUsers = exists.Post({id, author: {id: userId}});
+
+        if (!isUsers) throw new Error('this is not your post.');
+
         return mutation.updatePost({where: {id}, data}, info);
     },
-    createComment(parentValues, {data}, {prisma: {mutation}}, info) {
-        return mutation.createComment({data}, info);
+    async createComment(parentValues, {data: {text, post}}, {prisma: {mutation, query}, request}, info) {
+        const {id} = await protect(request, query);
+
+        return mutation.createComment({text, post, author: id}, info);
     },
-    deleteComment(parentValues, {id}, {prisma: {mutation}}, info) {
+    async deleteComment(parentValues, {id}, {prisma: {mutation, query, exists}, request}, info) {
+        const {id: userId} = await protect(request, query);
+        const isUsers = exists.Comment({id, author: {id: userId}});
+
+        if (!isUsers) throw new Error('this is not your comment.');
+
         return mutation.deleteComment({where: {id}}, info);
     },
-    updateComment(parentValues, {id, data}, {prisma: {mutation}}, info) {
+    async updateComment(parentValues, {id, data}, {prisma: {mutation, query, exists}, request}, info) {
+        const {id: userId} = await protect(request, query);
+        const isUsers = exists.Comment({id, author: {id: userId}});
+
+        if (!isUsers) throw new Error('this is not your comment.');
+
         return mutation.updateComment({where: {id}, data}, info);
     }
 };
