@@ -1,6 +1,7 @@
 import {verify} from 'jsonwebtoken';
 
-const protect = async ({request: {headers: {authorization: bearerToken}}}, query) => {
+const protect = async ({request: {headers: {authorization: bearerToken}}}, query, required = true) => {
+    if (!required && !bearerToken) return;
     if (!bearerToken) throw new Error('couldn\'t find token');
     if (!bearerToken.startsWith('Bearer ')) throw new Error('Invalid Token');
     const token = bearerToken.split(' ')[1];

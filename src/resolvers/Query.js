@@ -1,3 +1,5 @@
+import protect from "../utils/auth/protect";
+
 export default {
     users(parentValues, {query}, {prisma}, info) {
         const operationArgs = {};
@@ -42,5 +44,28 @@ export default {
             };
 
         return prisma.query.comments(operationArgs, info);
+    },
+    async post(parentValues, {id}, {prisma: {query}, request}, info) {
+        const user = await protect(request, query, false);
+
+        const posts = await query.posts({
+            where: {
+                id,
+                OR: [
+                    {
+                        published: true
+                    },
+                    {
+                        author: {
+                            id: user ? user.id : undefined
+                        }
+                    }
+                ]
+            }
+        }, info);
+
+        if (!posts.length) throw new Error('post not found.');
+
+        return posts[0];
     }
 };
