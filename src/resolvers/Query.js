@@ -1,8 +1,8 @@
 import protect from "../utils/auth/protect";
 
 export default {
-    users(parentValues, {query}, {prisma}, info) {
-        const operationArgs = {};
+    users(parentValues, {query, first, skip}, {prisma}, info) {
+        const operationArgs = {first, skip};
 
         if (query)
             operationArgs.where = {
@@ -18,9 +18,9 @@ export default {
 
         return prisma.query.users(operationArgs, info);
     },
-    posts(parentValues, {query}, {prisma, request}, info) {
+    posts(parentValues, {query, first, skip}, {prisma, request}, info) {
         const user = protect(request, prisma.query, false);
-        const operationArgs = {};
+        const operationArgs = {first, skip};
 
         if (query)
             operationArgs.where.OR = [
@@ -67,8 +67,8 @@ export default {
 
         return prisma.query.posts(operationArgs, info);
     },
-    comments(parentValues, {query}, {prisma}, info) {
-        const operationArgs = {};
+    comments(parentValues, {query, first, skip}, {prisma}, info) {
+        const operationArgs = {first, skip};
 
         if (query)
             operationArgs.where = {
